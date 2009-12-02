@@ -21,7 +21,7 @@
 
     timer: null,
     
-    interval: 1000,
+    interval: 500,
     
     children: null,
     
