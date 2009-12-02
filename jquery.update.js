@@ -10,9 +10,9 @@
       STOP        = 'blur keydown',
       // Selectors
       FORM        = 'form',
-      TEXT_INPUT  = 'input[type=text]',
+      TEXT_INPUT  = 'input[type=text], textarea',
       OTHER_INPUT = 'input[type!=text], select',
-      ALL_INPUTS  = 'input, select',
+      ALL_INPUTS  = 'input, select, textarea',
       // Data keys
       STORAGE_KEY = '__update__',
       HANDLER_KEY = '__handle__',
