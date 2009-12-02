@@ -106,15 +106,16 @@
       var elem = this;
       
       if (!update.timer) {
-        update.timer = setInterval(function () {
+        update.timer = setTimeout(function () {
           update.compare.call(elem, evt);
+          update.timer = setTimeout(arguments.callee, update.interval);
         }, update.interval);
       }
     },
     
     handleStop: function (evt) {
       if (update.timer) {
-        update.timer = clearInterval(update.timer);
+        update.timer = clearTimeout(update.timer);
       }
     }
   };
