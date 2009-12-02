@@ -46,7 +46,7 @@
       } else if ($elem.is(OTHER_INPUT)) {
 
         $elem
-          .bind(CHANGE, update.compare);
+          .bind(CHANGE, update.test);
       
       } else if ($elem.is(FORM)) {
 
@@ -76,7 +76,7 @@
       } else if ($elem.is(OTHER_INPUT)) {
 
         $elem
-          .unbind(CHANGE, update.compare);
+          .unbind(CHANGE, update.test);
       
       } else if ($elem.is(FORM)) {
 
@@ -85,7 +85,7 @@
       }
     },
     
-    compare: function (evt) {
+    test: function (evt) {
 
       var elem    = this,
           $elem   = $(elem),
@@ -95,6 +95,7 @@
       if (current !== stored) {
         $elem.data(STORAGE_KEY, current);
         if (typeof stored !== 'undefined' || current !== '') {
+          // @todo reuse event or create new?
           evt.type = UPDATE;
           $.event.handle.apply(elem, arguments);
         }
@@ -106,16 +107,15 @@
       var elem = this;
       
       if (!update.timer) {
-        update.timer = setTimeout(function () {
-          update.compare.call(elem, evt);
-          update.timer = setTimeout(arguments.callee, update.interval);
+        update.timer = setInterval(function () {
+          update.test.call(elem, evt);
         }, update.interval);
       }
     },
     
     handleStop: function (evt) {
       if (update.timer) {
-        update.timer = clearTimeout(update.timer);
+        update.timer = clearInterval(update.timer);
       }
     }
   };
