@@ -50,6 +50,7 @@
       
       } else if ($elem.is(FORM)) {
 
+        // @todo make sure storing the function this way is properly tore down
         $elem.data(HANDLER_KEY, function (evt) {
           $.event.handle.apply(elem, arguments);
         });
