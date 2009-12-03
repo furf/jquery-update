@@ -30,7 +30,7 @@
     //   'slow':     522,  // 23wpm "slow"     521.7391304347826ms
     // },
 
-    interval: 500,
+    interval: 600,
     
     children: null,
     
