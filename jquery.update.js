@@ -1,5 +1,5 @@
 (function ($) {
-
+  
   // @todo handle HTML5 input types
   
       // Events
@@ -10,8 +10,8 @@
       
       // Selectors
       FORM        = 'form',
-      TEXT_INPUT  = 'input[type=text], textarea',
-      OTHER_INPUT = 'input[type!=text], select',
+      TEXT_INPUT  = 'input[type=text], input[type=password], textarea',
+      OTHER_INPUT = 'input[type!=text], input[type!=password], select',
       ALL_INPUTS  = 'input, select, textarea',
       
       // Data keys
@@ -63,8 +63,8 @@
       } else if ($elem.is(FORM)) {
 
         // @todo make sure storing the function this way is properly tore down
-        $elem.data(HANDLER_KEY, function (event) {
-          $.event.handle.apply(elem, arguments);
+        $elem.data(HANDLER_KEY, function (evt) {
+          $.event.handle.call(elem, evt);
         });
 
         // @todo move to .live() when focus and blur are natively supported
@@ -90,42 +90,55 @@
       } else if ($elem.is(FORM)) {
 
         $elem.find(ALL_INPUTS).unbind(UPDATE, $elem.data(HANDLER_KEY));
+        
+        $elem.removeData(HANDLER_KEY);
       }
     },
 
-    trigger: function (event) {
+    trigger: function (evt) {
       // @todo reuse event or create new?
       // (don't blow out child update events)
-      event.type = UPDATE;
-      $.event.handle.apply(this, arguments);
+      evt.type = UPDATE;
+      evt = new jQuery.Event(evt);
+      console.log(evt);
+      $.event.handle.call(this, evt);
     },
 
-    handleStart: function (event) {
+    test: function (evt) {
+
+      var elem  = this,
+          $elem = $(elem),
+          value = $elem.val();
+
+      if ($elem.data(STORAGE_KEY) !== value) {
+        $elem.data(STORAGE_KEY, value);
+        update.trigger.call(elem, evt);
+      }
+    },
+    
+    handleStart: function (evt) {
 
       var elem = this;
       
       if (!update.timer) {
         update.timer = setTimeout(function () {
-
-          console.log('test');
-          
-          var $elem = $(elem),
-              value = $elem.val();
-
-          if ($elem.data(STORAGE_KEY) !== value) {
-            $elem.data(STORAGE_KEY, value);
-            update.trigger.call(elem, event);
-          }
-
+          update.test.call(elem, evt);
           update.timer = setTimeout(arguments.callee, update.interval);
         }, update.interval);
       }
     },
     
-    handleStop: function (event) {
+    handleStop: function (evt) {
+
+      var elem = this;
+
       if (update.timer) {
         update.timer = clearTimeout(update.timer);
       }
+
+      if (evt.type === 'blur') {
+        update.test.call(elem, evt);
+      }      
     }
   };
 
