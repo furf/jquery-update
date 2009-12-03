@@ -107,6 +107,8 @@
       if (!update.timer) {
         update.timer = setTimeout(function () {
 
+          console.log('test');
+          
           var $elem = $(elem),
               value = $elem.val();
 
