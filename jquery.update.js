@@ -1,5 +1,4 @@
-(function($) {
-
+(function ($) {
 
   // @todo handle HTML5 input types
   
@@ -8,11 +7,13 @@
       CHANGE      = 'change',
       START       = 'focus keyup',
       STOP        = 'blur keydown',
+      
       // Selectors
       FORM        = 'form',
       TEXT_INPUT  = 'input[type=text], textarea',
       OTHER_INPUT = 'input[type!=text], select',
       ALL_INPUTS  = 'input, select, textarea',
+      
       // Data keys
       STORAGE_KEY = '__update__',
       HANDLER_KEY = '__handle__',
@@ -21,6 +22,14 @@
 
     timer: null,
     
+    // @see http://en.wikipedia.org/wiki/Words_per_minute
+    // intervals: {
+    //   'fast':     300,  // 40wpm "fast"     300.0000000000000ms
+    //   'medium':   343,  // 35wpm "medium"   342.8571428571429ms
+    //   'average':  367,  // 33wpm "average"  363.6363636363636ms
+    //   'slow':     522,  // 23wpm "slow"     521.7391304347826ms
+    // },
+
     interval: 500,
     
     children: null,
@@ -30,8 +39,12 @@
     //   return (ns) ? '.' + ns.join('.') : '';
     // },
 
-    // @todo handle namespacing?
     // @todo use data.interval for interval configuration - use add when available
+    // add: function (fn, data, ns) {
+    //   update.interval = data.interval && update.intervals[data.interval] || update.intervals['slow'];
+    // },
+
+    // @todo handle namespacing?
     setup: function(data, ns) {
 
       var elem  = this,
@@ -39,29 +52,26 @@
 
       if ($elem.is(TEXT_INPUT)) {
 
-        $elem
+        $elem.data(STORAGE_KEY, $elem.val())
           .bind(START, update.handleStart)
           .bind(STOP, update.handleStop);
       
       } else if ($elem.is(OTHER_INPUT)) {
 
-        $elem
-          .bind(CHANGE, update.test);
+        $elem.bind(CHANGE, update.trigger);
       
       } else if ($elem.is(FORM)) {
 
         // @todo make sure storing the function this way is properly tore down
-        $elem.data(HANDLER_KEY, function (evt) {
+        $elem.data(HANDLER_KEY, function (event) {
           $.event.handle.apply(elem, arguments);
         });
 
         // @todo move to .live() when focus and blur are natively supported
-        update.children = $elem.find(ALL_INPUTS)
-          .bind(UPDATE, $elem.data(HANDLER_KEY));
+        $elem.find(ALL_INPUTS).bind(UPDATE, $elem.data(HANDLER_KEY));
       }
     },
 
-    // @todo remove data in cleanup
     // @todo handle namespacing?
     teardown: function(ns) {
 
@@ -69,53 +79,50 @@
 
       if ($elem.is(TEXT_INPUT)) {
 
-        $elem
+        $elem.removeData(STORAGE_KEY)
           .unbind(START, update.handleStart)
           .unbind(STOP, update.handleStop);
       
       } else if ($elem.is(OTHER_INPUT)) {
 
-        $elem
-          .unbind(CHANGE, update.test);
+        $elem.unbind(CHANGE, update.trigger);
       
       } else if ($elem.is(FORM)) {
 
-        update.children
-          .unbind(UPDATE, $elem.data(HANDLER_KEY));
+        $elem.find(ALL_INPUTS).unbind(UPDATE, $elem.data(HANDLER_KEY));
       }
     },
-    
-    test: function (evt) {
 
-      var elem    = this,
-          $elem   = $(elem),
-          current = $elem.val(),
-          stored  = $elem.data(STORAGE_KEY);
-
-      if (current !== stored) {
-        $elem.data(STORAGE_KEY, current);
-        if (typeof stored !== 'undefined' || current !== '') {
-          // @todo reuse event or create new?
-          evt.type = UPDATE;
-          $.event.handle.apply(elem, arguments);
-        }
-      }
+    trigger: function (event) {
+      // @todo reuse event or create new?
+      // (don't blow out child update events)
+      event.type = UPDATE;
+      $.event.handle.apply(this, arguments);
     },
-    
-    handleStart: function (evt) {
+
+    handleStart: function (event) {
 
       var elem = this;
       
       if (!update.timer) {
-        update.timer = setInterval(function () {
-          update.test.call(elem, evt);
+        update.timer = setTimeout(function () {
+
+          var $elem = $(elem),
+              value = $elem.val();
+
+          if ($elem.data(STORAGE_KEY) !== value) {
+            $elem.data(STORAGE_KEY, value);
+            update.trigger.call(elem, event);
+          }
+
+          update.timer = setTimeout(arguments.callee, update.interval);
         }, update.interval);
       }
     },
     
-    handleStop: function (evt) {
+    handleStop: function (event) {
       if (update.timer) {
-        update.timer = clearInterval(update.timer);
+        update.timer = clearTimeout(update.timer);
       }
     }
   };
