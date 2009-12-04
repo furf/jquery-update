@@ -10,8 +10,8 @@
       
       // Selectors
       FORM        = 'form',
-      TEXT_INPUT  = 'input[type=text], input[type=password], textarea',
-      OTHER_INPUT = 'input[type!=text], input[type!=password], select',
+      TEXT_INPUT  = 'input[type=text],input[type=password],textarea',
+      OTHER_INPUT = 'input[type!=text],input[type!=password],select',
       ALL_INPUTS  = 'input, select, textarea',
       
       // Data keys
@@ -22,6 +22,9 @@
 
     timer: null,
     
+    interval: 600,
+
+    // @todo default speeds when support for interval configuration is added
     // @see http://en.wikipedia.org/wiki/Words_per_minute
     // intervals: {
     //   'fast':     300,  // 40wpm "fast"     300.0000000000000ms
@@ -30,10 +33,6 @@
     //   'slow':     522,  // 23wpm "slow"     521.7391304347826ms
     // },
 
-    interval: 600,
-    
-    children: null,
-    
     // @todo handle namespacing?
     // joinNamespaces: function () {
     //   return (ns) ? '.' + ns.join('.') : '';
@@ -96,12 +95,8 @@
     },
 
     trigger: function (evt) {
-      // @todo reuse event or create new?
-      // (don't blow out child update events)
       evt.type = UPDATE;
-      evt = new jQuery.Event(evt);
-      console.log(evt);
-      $.event.handle.call(this, evt);
+      $.event.handle.call(this, new jQuery.Event(evt));
     },
 
     test: function (evt) {
