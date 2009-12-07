@@ -50,7 +50,7 @@
       
       if ($elem.is(INPUT)) {
 
-        $elem.bind(CHANGE, update.trigger);
+        $elem.bind(CHANGE, update.handle);
 
         if ($elem.is(TEXT_INPUT)) {
           $elem.data(STORAGE_KEY, $elem.val())
@@ -77,7 +77,7 @@
 
       if ($elem.is(INPUT)) {
 
-        $elem.unbind(CHANGE, update.trigger);
+        $elem.unbind(CHANGE, update.handle);
         
         if ($elem.is(TEXT_INPUT)) {
           $elem.removeData(STORAGE_KEY)
@@ -93,7 +93,7 @@
       }
     },
 
-    trigger: function (evt) {
+    handle: function (evt) {
       evt.type = UPDATE;
       $.event.handle.call(this, evt);
     },
@@ -106,7 +106,7 @@
 
       if ($elem.data(STORAGE_KEY) !== value) {
         $elem.data(STORAGE_KEY, value);
-        update.trigger.call(elem, evt);
+        update.handle.call(elem, evt);
       }
     },
     
