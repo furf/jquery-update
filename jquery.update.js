@@ -96,7 +96,7 @@
 
     trigger: function (evt) {
       evt.type = UPDATE;
-      $.event.handle.call(this, new jQuery.Event(evt));
+      $.event.handle.call(this, evt);
     },
 
     test: function (evt) {
