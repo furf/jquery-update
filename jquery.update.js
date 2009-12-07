@@ -1,7 +1,5 @@
 (function ($) {
-  
-  // @todo handle HTML5 input types
-  
+
       // Events
   var UPDATE      = 'update',
       CHANGE      = 'change',
@@ -10,10 +8,11 @@
       
       // Selectors
       FORM        = 'form',
-      TEXT_INPUT  = 'input[type=text],input[type=password],textarea',
-      OTHER_INPUT = 'input[type!=text],input[type!=password],select',
-      ALL_INPUTS  = 'input, select, textarea',
-      
+      INPUT       = 'input,select,textarea',
+      TEXT_INPUT  = '[type=text],[type=password],textarea,'
+                    // Support HTML 5 types with a typing component
+                  + '[type=search],[type=tel],[type=url],[type=email],'
+                  + '[type=time],[type=datetime],[type=number],[type=color]',
       // Data keys
       STORAGE_KEY = '__update__',
       HANDLER_KEY = '__handle__',
@@ -48,17 +47,17 @@
 
       var elem  = this,
           $elem = $(elem);
-
-      if ($elem.is(TEXT_INPUT)) {
-
-        $elem.data(STORAGE_KEY, $elem.val())
-          .bind(START, update.handleStart)
-          .bind(STOP, update.handleStop);
       
-      } else if ($elem.is(OTHER_INPUT)) {
+      if ($elem.is(INPUT)) {
 
         $elem.bind(CHANGE, update.trigger);
-      
+
+        if ($elem.is(TEXT_INPUT)) {
+          $elem.data(STORAGE_KEY, $elem.val())
+            .bind(START, update.handleStart)
+            .bind(STOP, update.handleStop);
+        }
+
       } else if ($elem.is(FORM)) {
 
         // @todo make sure storing the function this way is properly tore down
@@ -67,7 +66,7 @@
         });
 
         // @todo move to .live() when focus and blur are natively supported
-        $elem.find(ALL_INPUTS).bind(UPDATE, $elem.data(HANDLER_KEY));
+        $elem.find(INPUT).bind(UPDATE, $elem.data(HANDLER_KEY));
       }
     },
 
@@ -76,19 +75,19 @@
 
       var $elem = $(this);
 
-      if ($elem.is(TEXT_INPUT)) {
-
-        $elem.removeData(STORAGE_KEY)
-          .unbind(START, update.handleStart)
-          .unbind(STOP, update.handleStop);
-      
-      } else if ($elem.is(OTHER_INPUT)) {
+      if ($elem.is(INPUT)) {
 
         $elem.unbind(CHANGE, update.trigger);
+        
+        if ($elem.is(TEXT_INPUT)) {
+          $elem.removeData(STORAGE_KEY)
+            .unbind(START, update.handleStart)
+            .unbind(STOP, update.handleStop);
+        }
       
       } else if ($elem.is(FORM)) {
 
-        $elem.find(ALL_INPUTS).unbind(UPDATE, $elem.data(HANDLER_KEY));
+        $elem.find(INPUT).unbind(UPDATE, $elem.data(HANDLER_KEY));
         
         $elem.removeData(HANDLER_KEY);
       }
@@ -123,22 +122,15 @@
       }
     },
     
-    handleStop: function (evt) {
-
-      var elem = this;
-
+    handleStop: function () {
       if (update.timer) {
         update.timer = clearTimeout(update.timer);
       }
-
-      if (evt.type === 'blur') {
-        update.test.call(elem, evt);
-      }      
     }
   };
 
   $.fn.update = function (fn) {
     return fn ? this.bind(UPDATE, fn) : this.trigger(UPDATE);
   };
-  
+
 })(jQuery);
