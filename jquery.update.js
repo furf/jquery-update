@@ -7,7 +7,6 @@
       STOP        = 'blur keydown',
       
       // Selectors
-      FORM        = 'form',
       INPUT       = 'input,select,textarea',
       TEXT_INPUT  = '[type=text],[type=password],textarea,'
                     // Support HTML 5 types with a typing component
@@ -58,7 +57,7 @@
             .bind(STOP, update.handleStop);
         }
 
-      } else if ($elem.is(FORM)) {
+      } else {
 
         // @todo make sure storing the function this way is properly tore down
         $elem.data(HANDLER_KEY, function (evt) {
@@ -85,7 +84,7 @@
             .unbind(STOP, update.handleStop);
         }
       
-      } else if ($elem.is(FORM)) {
+      } else {
 
         $elem.find(INPUT).unbind(UPDATE, $elem.data(HANDLER_KEY));
         
