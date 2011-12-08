@@ -97,9 +97,9 @@
     },
 
     handleUpdate: function (evt) {
-      var udpateEvent = new $.Event(evt);
-      udpateEvent.type = UPDATE;
-      $.event.handle.call(this, udpateEvent);
+      var updateEvent = new $.Event(evt);
+      updateEvent.type = UPDATE;
+      $.event.handle.call(this, updateEvent);
     },
 
     test: function (evt) {
