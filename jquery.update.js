@@ -1,3 +1,9 @@
+/*!
+ * jQuery Update
+ *
+ * Copyright 2011, Dave Furfero
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ */
 (function ($) {
 
       // Events
@@ -5,7 +11,7 @@
       CHANGE      = 'change',
       START       = 'focus keyup',
       STOP        = 'blur keydown',
-      
+
       // Selectors
       INPUT       = 'input,select,textarea',
       TEXT_INPUT  = '[type=text],[type=password],textarea,'
@@ -19,7 +25,7 @@
   update = $.event.special.update = {
 
     timer: null,
-    
+
     interval: 600,
 
     // @todo default speeds when support for interval configuration is added
@@ -46,10 +52,10 @@
 
       var elem  = this,
           $elem = $(elem);
-      
+
       if ($elem.is(INPUT)) {
 
-        $elem.bind(CHANGE, update.handle);
+        $elem.bind(CHANGE, update.test);
 
         if ($elem.is(TEXT_INPUT)) {
           $elem.data(STORAGE_KEY, $elem.val())
@@ -59,12 +65,10 @@
 
       } else {
 
-        // @todo make sure storing the function this way is properly tore down
         $elem.data(HANDLER_KEY, function (evt) {
           $.event.handle.call(elem, evt);
         });
 
-        // @todo move to .live() when focus and blur are natively supported
         $elem.find(INPUT).bind(UPDATE, $elem.data(HANDLER_KEY));
       }
     },
@@ -76,25 +80,26 @@
 
       if ($elem.is(INPUT)) {
 
-        $elem.unbind(CHANGE, update.handle);
-        
+        $elem.unbind(CHANGE, update.test);
+
         if ($elem.is(TEXT_INPUT)) {
           $elem.removeData(STORAGE_KEY)
             .unbind(START, update.handleStart)
             .unbind(STOP, update.handleStop);
         }
-      
+
       } else {
 
         $elem.find(INPUT).unbind(UPDATE, $elem.data(HANDLER_KEY));
-        
+
         $elem.removeData(HANDLER_KEY);
       }
     },
 
-    handle: function (evt) {
-      evt.type = UPDATE;
-      $.event.handle.call(this, evt);
+    handleUpdate: function (evt) {
+      var udpateEvent = new $.Event(evt);
+      udpateEvent.type = UPDATE;
+      $.event.handle.call(this, udpateEvent);
     },
 
     test: function (evt) {
@@ -105,14 +110,14 @@
 
       if ($elem.data(STORAGE_KEY) !== value) {
         $elem.data(STORAGE_KEY, value);
-        update.handle.call(elem, evt);
+        update.handleUpdate.call(elem, evt);
       }
     },
-    
+
     handleStart: function (evt) {
 
       var elem = this;
-      
+
       if (!update.timer) {
         update.timer = setTimeout(function () {
           update.test.call(elem, evt);
@@ -120,7 +125,7 @@
         }, update.interval);
       }
     },
-    
+
     handleStop: function () {
       if (update.timer) {
         update.timer = clearTimeout(update.timer);
